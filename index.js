@@ -90,13 +90,13 @@ async function run() {
 
     const db = client.db("md_omor_faruk_db");
     const userCollection = db.collection("users");
-    const researchCollection = db.collection("research");
-    const experienceCollection = db.collection("experiences");
-    const developmentCollection = db.collection("developments");
     const academicCollection = db.collection("academics");
-    const skillCollection = db.collection("skills");
-    const honorCollection = db.collection("honors");
-    const volunteerCollection = db.collection("volunteerings");
+    const experienceCollection = db.collection("experiences");
+    const publicationCollection = db.collection("publications");
+    const expertiseCollection = db.collection("expertises");   
+    const booksCollection = db.collection("books");
+    const activitiesCollection = db.collection("activities");
+    const honorCollection = db.collection("honors");   
     const galleryCollection = db.collection("gallery");
     const referenceCollection = db.collection("references");
     const otpCollection = db.collection("otps");
@@ -324,30 +324,30 @@ app.post("/users", async (req, res) => {
     });
 
     // POST: Create a new research publication (Admin only)
-    app.post("/research",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.post("/publications",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
-        const research = req.body;
-        research.createdAt = new Date();
+        const publication = req.body;
+        publication.createdAt = new Date();
 
-        const result = await researchCollection.insertOne(research);
+        const result = await publicationCollection.insertOne(publication);
         res.status(201).send({
           success: true,
-          message: "Research published successfully",
+          message: "Research publication added successfully",
           result,
         });
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to publish research",
+          message: "Failed to add research publication",
           error: error.message,
         });
       }
     });
 
     // GET: Fetch all research publications (Sorted newest first)
-    app.get("/research", async (req, res) => {
+    app.get("/publications", async (req, res) => {
       try {
-        const result = await researchCollection
+        const result = await publicationCollection
           .find()
           .sort({ createdAt: -1 })
           .toArray();
@@ -362,19 +362,19 @@ app.post("/users", async (req, res) => {
     });
 
     // GET: Fetch a single research publication by ID
-    app.get("/research/:id", async (req, res) => {
+    app.get("/publications/:id", async (req, res) => {
       try {
         const query = { _id: new ObjectId(req.params.id) };
-        const research = await researchCollection.findOne(query);
+        const publication = await publicationCollection.findOne(query);
 
-        if (!research) {
+        if (!publication) {
           return res.status(404).send({
             success: false,
             message: "Research publication not found",
           });
         }
 
-        res.send(research);
+        res.send(publication);
       } catch (error) {
         res.status(500).send({
           success: false,
@@ -385,7 +385,7 @@ app.post("/users", async (req, res) => {
     });
 
     // PATCH: Update a research publication by ID (Admin only)
-    app.patch("/research/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.patch("/publications/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
         const filter = { _id: new ObjectId(req.params.id) };
         const updateData = { ...req.body };
@@ -395,7 +395,7 @@ app.post("/users", async (req, res) => {
           $set: { ...updateData, updatedAt: new Date() },
         };
 
-        const result = await researchCollection.updateOne(filter, updateDoc);
+        const result = await publicationCollection.updateOne(filter, updateDoc);
 
         if (result.matchedCount === 0) {
           return res.status(404).send({
@@ -419,9 +419,9 @@ app.post("/users", async (req, res) => {
     });
 
     // DELETE: Remove a research publication by ID (Admin only)
-    app.delete("/research/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.delete("/publications/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
-        const result = await researchCollection.deleteOne({
+        const result = await publicationCollection.deleteOne({
           _id: new ObjectId(req.params.id),
         });
 
@@ -434,7 +434,7 @@ app.post("/users", async (req, res) => {
 
         res.send({
           success: true,
-          message: "Research deleted successfully",
+          message: "Research publication deleted successfully",
           result,
         });
       } catch (error) {
@@ -566,12 +566,12 @@ app.post("/users", async (req, res) => {
     });
 
     // POST: Create a new development/project
-    app.post("/developments",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.post("/expertises",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
         const development = req.body;
         development.createdAt = new Date();
 
-        const result = await developmentCollection.insertOne(development);
+        const result = await expertiseCollection.insertOne(development);
         res.status(201).send({
           success: true,
           message: "Development project added successfully",
@@ -587,9 +587,9 @@ app.post("/users", async (req, res) => {
     });
 
     // GET: Fetch all development projects (Sorted newest first)
-    app.get("/developments", async (req, res) => {
+    app.get("/expertises", async (req, res) => {
       try {
-        const result = await developmentCollection
+        const result = await expertiseCollection
           .find()
           .sort({ createdAt: -1 })
           .toArray();
@@ -604,10 +604,10 @@ app.post("/users", async (req, res) => {
     });
 
     // GET: Fetch a single development project by ID
-    app.get("/developments/:id", async (req, res) => {
+    app.get("/expertises/:id", async (req, res) => {
       try {
         const query = { _id: new ObjectId(req.params.id) };
-        const development = await developmentCollection.findOne(query);
+        const development = await expertiseCollection.findOne(query);
 
         if (!development) {
           return res
@@ -626,7 +626,7 @@ app.post("/users", async (req, res) => {
     });
 
     // PATCH: Update a development project by ID
-    app.patch("/developments/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.patch("/expertises/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
         const filter = { _id: new ObjectId(req.params.id) };
         const updateData = { ...req.body };
@@ -636,7 +636,7 @@ app.post("/users", async (req, res) => {
           $set: { ...updateData, updatedAt: new Date() },
         };
 
-        const result = await developmentCollection.updateOne(filter, updateDoc);
+        const result = await expertiseCollection.updateOne(filter, updateDoc);
 
         if (result.matchedCount === 0) {
           return res
@@ -659,16 +659,16 @@ app.post("/users", async (req, res) => {
     });
 
     // DELETE: Remove a development project by ID
-    app.delete("/developments/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.delete("/expertises/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
-        const result = await developmentCollection.deleteOne({
+        const result = await expertiseCollection.deleteOne({
           _id: new ObjectId(req.params.id),
         });
 
         if (result.deletedCount === 0) {
           return res
             .status(404)
-            .send({ success: false, message: "Development project not found" });
+            .send({ success: false, message: "Expertise not found" });
         }
 
         res.send({
@@ -805,31 +805,31 @@ app.post("/users", async (req, res) => {
       }
     });
 
-    // POST: Create a new skill
-    app.post("/skills",verifyFBToken,verifyAdmin, async (req, res) => {
+    // POST: Create a new book
+    app.post("/books",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
-        const skill = req.body;
-        skill.createdAt = new Date();
+        const book = req.body;
+        book.createdAt = new Date();
 
-        const result = await skillCollection.insertOne(skill);
+        const result = await booksCollection.insertOne(book);
         res.status(201).send({
           success: true,
-          message: "Skill added successfully",
+          message: "Book added successfully",
           result,
         });
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to add skill",
+          message: "Failed to add book",
           error: error.message,
         });
       }
     });
 
-    // GET: Fetch all skills (Sorted newest first)
-    app.get("/skills", async (req, res) => {
+    // GET: Fetch all books (Sorted newest first)
+    app.get("/books", async (req, res) => {
       try {
-        const result = await skillCollection
+        const result = await booksCollection
           .find()
           .sort({ createdAt: -1 })
           .toArray();
@@ -837,36 +837,36 @@ app.post("/users", async (req, res) => {
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to fetch skills",
+          message: "Failed to fetch books",
           error: error.message,
         });
       }
     });
 
-    // GET: Fetch a single skill by ID
-    app.get("/skills/:id", async (req, res) => {
+    // GET: Fetch a single book by ID
+    app.get("/books/:id", async (req, res) => {
       try {
         const query = { _id: new ObjectId(req.params.id) };
-        const skill = await skillCollection.findOne(query);
+        const book = await booksCollection.findOne(query);
 
-        if (!skill) {
+        if (!book) {
           return res
             .status(404)
-            .send({ success: false, message: "Skill not found" });
+            .send({ success: false, message: "Book not found" });
         }
 
-        res.send(skill);
+        res.send(book);
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Invalid Skill ID or Server Error",
+          message: "Invalid Book ID or Server Error",
           error: error.message,
         });
       }
     });
 
-    // PATCH: Update a skill by ID
-    app.patch("/skills/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    // PATCH: Update a book by ID
+    app.patch("/books/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
         const filter = { _id: new ObjectId(req.params.id) };
         const updateData = { ...req.body };
@@ -876,44 +876,44 @@ app.post("/users", async (req, res) => {
           $set: { ...updateData, updatedAt: new Date() },
         };
 
-        const result = await skillCollection.updateOne(filter, updateDoc);
+        const result = await booksCollection.updateOne(filter, updateDoc);
 
         if (result.matchedCount === 0) {
           return res
             .status(404)
-            .send({ success: false, message: "Skill not found" });
+            .send({ success: false, message: "Book not found" });
         }
 
         res.send({
           success: true,
-          message: "Skill updated successfully",
+          message: "Book updated successfully",
           result,
         });
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to update skill",
+          message: "Failed to update book",
           error: error.message,
         });
       }
     });
 
-    // DELETE: Remove a skill by ID
-    app.delete("/skills/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    // DELETE: Remove a book by ID
+    app.delete("/books/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
-        const result = await skillCollection.deleteOne({
+        const result = await booksCollection.deleteOne({
           _id: new ObjectId(req.params.id),
         });
 
         if (result.deletedCount === 0) {
           return res
             .status(404)
-            .send({ success: false, message: "Skill not found" });
+            .send({ success: false, message: "Book not found" });
         }
 
         res.send({
           success: true,
-          message: "Skill deleted successfully",
+          message: "Book deleted successfully",
           result,
         });
       } catch (error) {
@@ -1046,30 +1046,30 @@ app.post("/users", async (req, res) => {
     });
 
     // POST: Create a new voluntary work entry
-    app.post("/volunteerings",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.post("/activities",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
         const voluntaryWork = req.body;
         voluntaryWork.createdAt = new Date();
 
-        const result = await volunteerCollection.insertOne(voluntaryWork);
+        const result = await activitiesCollection.insertOne(voluntaryWork);
         res.status(201).send({
           success: true,
-          message: "Voluntary work added successfully",
+          message: "Activity work added successfully",
           result,
         });
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to add voluntary work",
+          message: "Failed to add activity work",
           error: error.message,
         });
       }
     });
 
     // GET: Fetch all voluntary work entries (Sorted newest first)
-    app.get("/volunteerings", async (req, res) => {
+    app.get("/activities", async (req, res) => {
       try {
-        const result = await volunteerCollection
+        const result = await activitiesCollection
           .find()
           .sort({ createdAt: -1 })
           .toArray();
@@ -1077,22 +1077,22 @@ app.post("/users", async (req, res) => {
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to fetch voluntary works",
+          message: "Failed to fetch activity works",
           error: error.message,
         });
       }
     });
 
     // GET: Fetch a single voluntary work entry by ID
-    app.get("/volunteerings/:id", async (req, res) => {
+    app.get("/activities/:id", async (req, res) => {
       try {
         const query = { _id: new ObjectId(req.params.id) };
-        const voluntaryWork = await volunteerCollection.findOne(query);
+        const voluntaryWork = await activitiesCollection.findOne(query);
 
         if (!voluntaryWork) {
           return res.status(404).send({
             success: false,
-            message: "Voluntary work entry not found",
+            message: "Activity work entry not found",
           });
         }
 
@@ -1100,14 +1100,14 @@ app.post("/users", async (req, res) => {
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Invalid Voluntary Work ID or Server Error",
+          message: "Invalid Activity Work ID or Server Error",
           error: error.message,
         });
       }
     });
 
     // PATCH: Update a voluntary work entry by ID
-    app.patch("/volunteerings/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    app.patch("/activities/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
         const filter = { _id: new ObjectId(req.params.id) };
         const updateData = { ...req.body };
@@ -1117,46 +1117,46 @@ app.post("/users", async (req, res) => {
           $set: { ...updateData, updatedAt: new Date() },
         };
 
-        const result = await volunteerCollection.updateOne(filter, updateDoc);
+        const result = await activitiesCollection.updateOne(filter, updateDoc);
 
         if (result.matchedCount === 0) {
           return res.status(404).send({
             success: false,
-            message: "Voluntary work entry not found",
+            message: "Activity work entry not found",
           });
         }
 
         res.send({
           success: true,
-          message: "Voluntary work updated successfully",
+          message: "Activity work updated successfully",
           result,
         });
       } catch (error) {
         res.status(500).send({
           success: false,
-          message: "Failed to update voluntary work",
+          message: "Failed to update activity work",
           error: error.message,
         });
       }
     });
 
-    // DELETE: Remove a voluntary work entry by ID
-    app.delete("/volunteerings/:id",verifyFBToken,verifyAdmin, async (req, res) => {
+    // DELETE: Remove a activity work entry by ID
+    app.delete("/activities/:id",verifyFBToken,verifyAdmin, async (req, res) => {
       try {
-        const result = await volunteerCollection.deleteOne({
+        const result = await activitiesCollection.deleteOne({
           _id: new ObjectId(req.params.id),
         });
 
         if (result.deletedCount === 0) {
           return res.status(404).send({
             success: false,
-            message: "Voluntary work entry not found",
+            message: "Activity work entry not found",
           });
         }
 
         res.send({
           success: true,
-          message: "Voluntary work deleted successfully",
+          message: "Activity work deleted successfully",
           result,
         });
       } catch (error) {
